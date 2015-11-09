@@ -1,7 +1,6 @@
 __author__ = 'dan bordeanu'
 
 
-import logging
 import threading
 import urlparse
 import BaseHTTPServer
