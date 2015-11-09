@@ -9,6 +9,7 @@ import optparse
 from helpers import logger_settings
 from os import curdir, sep
 
+
 class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def do_GET(self):
         """
@@ -18,6 +19,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         url = urlparse.urlparse(self.path)
         assert isinstance(url.query, object)
         query = urlparse.parse_qs(url.query)
+        response = ''
 
         if url.path == '/login-web/query':
             if not query.has_key('username'):
@@ -28,14 +30,14 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             self.send_response(200)
             self.end_headers()
 
-        elif url.path.startswith("/login-web/"):
+        elif url.path.startswith('/login-web/'):
             username = url.path.split("/", 2)[2]
             logger_settings.logger.info("%s: Result for %s", self.server.name(), username)
             response = 'user nanme:%s\n' %username
             self.send_response(200)
             self.end_headers()
 
-        elif url.path.endswitch('.html  '):
+        elif url.path.endswith('.html'):
             file_open = open(curdir + sep + self.path)
             self.send_response(200)
             self.send_header('Content-type', 'text/html')
@@ -43,14 +45,14 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             self.wfile.write(file_open.read())
             file_open.close()
 
-
         else:
             logger_settings.logger.info('%s: invalid GET:%s', self.server.name(), url.path)
             self.send_error(501)
             return
         self.send_header('Content-lenght', len(response))
-        self.send_header('Content-Type', 'application/json')
+        self.send_header('Content-Type', 'text/html')
         self.end_headers()
+
         if response:
             self.wfile.write(response)
             self.wfile.flush()
@@ -63,11 +65,12 @@ class HTTPServer(BaseHTTPServer.HTTPServer, threading.Thread):
 
         :rtype : object
         """
-        BaseHTTPServer.HTTPServer.__init__(self, ('', port), RequestHandler)
+        BaseHTTPServer.HTTPServer.__init__(self, ('127.0.0.1', port), RequestHandler)
 
         threading.Thread.__init__(self)
         assert isinstance(name, object)
         self.service_name = name
+        assert isinstance(port, object)
         self.service_port = port
 
     def name(self):
@@ -85,7 +88,7 @@ class HTTPServer(BaseHTTPServer.HTTPServer, threading.Thread):
 if __name__ == '__main__':
 
     parser = optparse.OptionParser()
-    parser.add_option("--http-port", dest="http_port", type="int",  default=8000, help="local HTTP server listen port")
+    parser.add_option('--http-port', dest='http_port', type='int',  default=8000, help='local HTTP server listen port')
     (opts, args) = parser.parse_args()
     if args:
         logger_settings.logger.info('no args')
