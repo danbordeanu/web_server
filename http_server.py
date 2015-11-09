@@ -7,10 +7,10 @@ import BaseHTTPServer
 import sys
 import optparse
 from helpers import logger_settings
-
+from os import curdir, sep
 
 class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
-    def do_get(self):
+    def do_GET(self):
         """
 
         :rtype : object
@@ -33,6 +33,16 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             logger_settings.logger.info("%s: Result for %s", self.server.name(), username)
             response = 'user nanme:%s\n' %username
             self.send_response(200)
+            self.end_headers()
+
+        elif url.path.endswitch('.html  '):
+            file_open = open(curdir + sep + self.path)
+            self.send_response(200)
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
+            self.wfile.write(file_open.read())
+            file_open.close()
+
 
         else:
             logger_settings.logger.info('%s: invalid GET:%s', self.server.name(), url.path)
@@ -44,6 +54,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         if response:
             self.wfile.write(response)
             self.wfile.flush()
+            return
 
 
 class HTTPServer(BaseHTTPServer.HTTPServer, threading.Thread):
@@ -56,16 +67,16 @@ class HTTPServer(BaseHTTPServer.HTTPServer, threading.Thread):
 
         threading.Thread.__init__(self)
         assert isinstance(name, object)
-        self.__name = name
-        self.__port = port
+        self.service_name = name
+        self.service_port = port
 
     def name(self):
-        return self.__name
+        return self.service_name
 
     def run(self):
-        logger_settings.logger.info("%s: listening on port %d", self.__name, self.__port)
+        logger_settings.logger.info("%s: listening on port %d", self.service_name, self.service_port)
         self.serve_forever()
-        logger_settings.logger.info("%s: stopped", self.__name)
+        logger_settings.logger.info("%s: stopped", self.service_name)
 
     def stop(self):
         self.shutdown()
