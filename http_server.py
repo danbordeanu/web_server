@@ -58,6 +58,11 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             self.wfile.flush()
             return
 
+    def do_PUT(self):
+        url = urlparse.urlparse(self.path)
+        query = urlparse.parse_qs(ur.query)
+        response = 'yada yada'
+
 
 class HTTPServer(BaseHTTPServer.HTTPServer, threading.Thread):
     def __init__(self, name, port):
