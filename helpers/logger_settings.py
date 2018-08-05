@@ -1,5 +1,3 @@
-__author__ = 'dan'
-
 import logging
 
 logger = logging.getLogger()
