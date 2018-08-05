@@ -1,10 +1,7 @@
-__author__ = 'dan bordeanu'
-
-
+import sys
 import threading
 import urlparse
 import BaseHTTPServer
-import sys
 import optparse
 from helpers import logger_settings
 from os import curdir, sep
@@ -12,10 +9,9 @@ from os import curdir, sep
 
 class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def do_GET(self):
-        """
-
-        :rtype : object
-        """
+        '''
+        :return:
+        '''
         url = urlparse.urlparse(self.path)
         assert isinstance(url.query, object)
         query = urlparse.parse_qs(url.query)
@@ -25,15 +21,15 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             if not query.has_key('username'):
                 self.send_error(400)
                 return
-            logger_settings.logger.info('%s Request for %s', self.server.name(), query['username'][0])
-            response = 'User name %s\n' % query['username']
+            logger_settings.logger.info('{0} Request for {1}'.format(self.server.name(), query['username'][0]))
+            response = 'User name {0}\n'.format(query['username'])
             self.send_response(200)
             self.end_headers()
 
         elif url.path.startswith('/login-web/'):
-            username = url.path.split("/", 2)[2]
-            logger_settings.logger.info("%s: Result for %s", self.server.name(), username)
-            response = 'user nanme:%s\n' %username
+            username = url.path.split('/', 2)[2]
+            logger_settings.logger.info('{0}: Result for {1}'.format(self.server.name(), username))
+            response = 'user nanme:{0}\n'.format(username)
             self.send_response(200)
             self.end_headers()
 
@@ -46,7 +42,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             file_open.close()
 
         else:
-            logger_settings.logger.info('%s: invalid GET:%s', self.server.name(), url.path)
+            logger_settings.logger.info('{0}: invalid GET:{1}'.format(self.server.name(), url.path))
             self.send_error(501)
             return
         self.send_header('Content-lenght', len(response))
@@ -58,18 +54,14 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             self.wfile.flush()
             return
 
-    def do_PUT(self):
-        url = urlparse.urlparse(self.path)
-        query = urlparse.parse_qs(ur.query)
-        response = 'yada yada'
-
 
 class HTTPServer(BaseHTTPServer.HTTPServer, threading.Thread):
     def __init__(self, name, port):
-        """
+        '''
 
-        :rtype : object
-        """
+        :param name:
+        :param port:
+        '''
         BaseHTTPServer.HTTPServer.__init__(self, ('127.0.0.1', port), RequestHandler)
 
         threading.Thread.__init__(self)
@@ -82,9 +74,9 @@ class HTTPServer(BaseHTTPServer.HTTPServer, threading.Thread):
         return self.service_name
 
     def run(self):
-        logger_settings.logger.info("%s: listening on port %d", self.service_name, self.service_port)
+        logger_settings.logger.info('{0}: listening on port: {1}'.format(self.service_name, self.service_port))
         self.serve_forever()
-        logger_settings.logger.info("%s: stopped", self.service_name)
+        logger_settings.logger.info('{0}: stopped'.format(self.service_name))
 
     def stop(self):
         self.shutdown()
@@ -93,12 +85,12 @@ class HTTPServer(BaseHTTPServer.HTTPServer, threading.Thread):
 if __name__ == '__main__':
 
     parser = optparse.OptionParser()
-    parser.add_option('--http-port', dest='http_port', type='int',  default=8000, help='local HTTP server listen port')
+    parser.add_option('--http-port', dest='http_port', type='int', default=8000, help='local HTTP server listen port')
     (opts, args) = parser.parse_args()
     if args:
         logger_settings.logger.info('no args')
-        parser.error("no arguments allowed")
-        sys.exit(1)
+        parser.error('no arguments allowed')
+        sys.exit()
     try:
         httpd = HTTPServer('http', opts.http_port)
         httpd.start()
@@ -107,4 +99,4 @@ if __name__ == '__main__':
         httpd.join()
 
     logger_settings.logger.info('Done')
-    sys.exit(0)
+    sys.exit()
